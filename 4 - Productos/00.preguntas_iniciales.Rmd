@@ -1,0 +1,60 @@
+---
+title: "Preguntas iniciales"
+author: "Maximiliano León"
+date: "09-10-2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(mvtnorm)
+library(EnvStats)
+library(ggridges)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(forcats)
+library(hrbrthemes)
+library(viridis)
+```
+
+La base de datos esta constituida en base a los juegos publicados entre los años 1980 y 2020, que lograron ventas mayores a las 100 mil copias. La muestra contiene 16600 datos, y fue extraida de: https://www.kaggle.com/gregorut/videogamesales?select=vgsales.csv
+
+Aquí plantearemos preguntas iniciales para explorar los datos
+
+```{r message=FALSE, warning=FALSE}
+
+datos = read.csv(file = "https://raw.githubusercontent.com/Maximiliano-Leon/Let/main/1%20-%20Datos%20Iniciales/vgsales.csv", header = T, sep = ",")
+
+#Disclaimer: La base de datos es grande, por lo que se demora en cargar
+```
+
+\newpage
+
+Pregunta 1:
+
+¿Como es la distribucion por año?
+
+Pregunta 2:
+
+¿Como es la distribucion por género?
+
+Pregunta 3:
+
+Comparar los éxitos de ventas por Publisher
+
+Pregunta 4:
+
+Comparar el éxito por género en cada década
+
+Pregunta 5:
+
+Comparar el éxito por consola en cada década
+
+
+
