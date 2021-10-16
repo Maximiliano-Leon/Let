@@ -1,0 +1,19 @@
+---
+title: "Introducción"
+author: "Maximiliano León"
+date: "15-10-2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+En 1950, tras la segunda guerra mundial, nace el primer videojuego, como un simulador de ajedrez, con el paso del tiempo fueron cada vez más completos, llegando a la gran cantidad de géneros y consolas, para estos mismos, que tenemos hoy en día, generando números muy elevados en ventas, y de esta forma, juegos que han sido totales exitos de venta.
+
+Así como han cambiado los juegos, tambien han cambiado los gustos de los consumidores, de esta forma, han cambiado los géneros preferidos a lo largo de los años. Por lo que juegos que fueron exitos en una época, podrían no serlo hoy en día, y vice versa. Por esto, es bueno saber como ha evolucionado el mercado, que géneros han sido mas exitosos a lo largo del tiempo, y cuales han tenido exitos esporádicos.
+
+En el presente informe se analisará una base de datos correspondiente a videojuegos con ventas mayores a las 100 mil unidades, entre los años 1980 y 2020, donde podremos ver como han cambiado a lo largo del tiempo, ver si existe algun patrón en su cambio, y (QUIZÁS) ver si hay alguna razón histórica en algún peak o baja de ventas. Se usarán tanto analisis generales de la muestra, como gráficos comparativos, 
+
+En una primera parte tendrémos análisis muestral principalmente numérico, con notas sobre supuestos que podemos obtener de ellos. Luego, un analisis gráfico con figuras de cada género por serparado, y comparaciones cuando sea pertinente, para ver como ha sido la evolucion en ventas de cada uno a lo largo del tiempo. Para luego finalizar con la conclusión, donde estimaremos que género que tendrá exito en el futuro próximo, cual no lo tendrá, y cuál puede serlo sin importar la época.
+
