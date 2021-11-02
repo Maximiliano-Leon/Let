@@ -5,7 +5,6 @@ date: "01-11-2021"
 output: html_document
 ---
 
-
 ```{r setup, include=FALSE}
 
 library(ggplot2)
@@ -19,9 +18,9 @@ library(sqldf)
 
 ```
 
+\#Carga de datos y transformacion de los mismos
 
-
-```{r setup, include=FALSE}
+```{r}
 
 datos <- rio::import(file.choose())
 promedio_anual_por_genero <- sqldf("select Genre, Year, sum(Global_Sales) as Ventas from datos group by Genre, Year")
@@ -30,11 +29,9 @@ DT2 <- promedio_anual_por_genero[-which(promedio_anual_por_genero$Year == "N/A")
 
 ```
 
+\#Version 1 \#Para una siguiente version se estima hacer un grafico por genero, ya que al ser tantos datos, independiente de los colores que se elijan, no sera muy claro, luego se pueden superponer los mas similares para compararlos
 
-#Version 1
-#Para una siguiente version se estima hacer un gráfico por genero, ya que al ser tantos datos, independiente de los colores que se elijan, no será muy claro, luego se pueden superponer los más similares para compararlos
-
-```{r setup, include=FALSE}
+```{r}
 
 
 ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
@@ -43,12 +40,7 @@ ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
   labs(title = "Evolución en las ventas de videojuegos por genero", 
        subtitle = "(1980 - 2020)",
        y = "Ventas Globales en 100 miles",
-       x = "Año") +
+       x = "Year") +
   geom_point()
-  
-
-
-ggsave("Figuras/evolucion_ventas_videojuegos_por_genero.png", height = 14, width = 20)
-
 
 ```
