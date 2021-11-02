@@ -1,0 +1,54 @@
+---
+title: "Script_Figura_1-evolucion_ventas_videojuegos_por_genero"
+author: "Maximiliano León"
+date: "01-11-2021"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(gapminder)
+library(gghighlight)
+library(countrycode)
+library(tidyverse)
+library(plyr)
+library(sqldf)
+
+```
+
+
+
+```{r setup, include=FALSE}
+
+datos <- rio::import(file.choose())
+promedio_anual_por_genero <- sqldf("select Genre, Year, sum(Global_Sales) as Ventas from datos group by Genre, Year")
+
+DT2 <- promedio_anual_por_genero[-which(promedio_anual_por_genero$Year == "N/A"),]
+
+```
+
+
+#Version 1
+#Para una siguiente version se estima hacer un gráfico por genero, ya que al ser tantos datos, independiente de los colores que se elijan, no será muy claro, luego se pueden superponer los más similares para compararlos
+
+```{r setup, include=FALSE}
+
+
+ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Evolución en las ventas de videojuegos por genero", 
+       subtitle = "(1980 - 2020)",
+       y = "Ventas Globales en 100 miles",
+       x = "Año") +
+  geom_point()
+  
+
+
+ggsave("Figuras/evolucion_ventas_videojuegos_por_genero.png", height = 14, width = 20)
+
+
+```
