@@ -1,0 +1,76 @@
+---
+title: "Script_2-Figura_2"
+author: "Maximiliano León"
+date: "07-11-2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(dplyr)
+library(gapminder)
+library(gghighlight)
+library(countrycode)
+library(tidyverse)
+library(plyr)
+library(sqldf)
+library(ggthemes)
+library(ggrepel)
+library(RColorBrewer)
+
+```
+
+
+```{r, cache=TRUE}
+## Importamos datos
+## (Usando el mismo metodo anterior, el metodo visto en clases para llamar la variable arroja error)
+datos <- rio::import(here::here("Datos Iniciales/vgsales.csv"))
+promedio_anual_por_genero <- sqldf("select Genre, Year, sum(Global_Sales) as Ventas from datos group by Genre, Year")
+
+DT2 <- promedio_anual_por_genero[-which(promedio_anual_por_genero$Year == "N/A"),]
+
+
+#Nuevo
+#Hacemos numerica la variable año(Year), ya que no lo era
+DT2$Year <- as.numeric(DT2$Year)
+
+#Eliminamos datos poco favorables para estudio
+DT2 <- DT2[-which(DT2$Year == 2020),]
+DT2 <- DT2[-which(DT2$Year == 2017),]
+DT2 <- DT2[-which(DT2$Year == 2016),]
+```
+
+Tomando una base de datos de 16 mil muestras tomadas de videojuegos con ventas mayores a las 100 mil unidades,
+realizamos una limpieza de datos, eliminando los datos que no tenia su año definido, ademas, luego eliminamos los datos desde 2015 a 2020 ya que estos eran muy pocos, por lo que podrian ser poco determinantes.
+
+
+Finalmente, con la base de datos abarcando desde 1980 a 2015, haremos algunos graficos de exploracion para tener ideas generales sobre los datos, y luego otros mas concluyentes.
+
+```{r}
+
+ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
+  geom_line(size = 1.1) +
+  theme_minimal() +
+  labs(title = "Evolución en las ventas de videojuegos por genero", 
+       subtitle = "(1980 - 2015)",
+       y = "Ventas Globales en 100 miles",
+       x = "Year") +
+  geom_point(size = 1.5) +
+  scale_color_brewer(palette = "Set3")
+
+
+ggsave( device = "png", filename = "evolucion_ventas_videojuegos_por_genero_v2", path = here::here("Figuras"))
+
+```
+
+En terminos generales, vemos que entre los años 2005 y 2015 hay un peak en ventas de videojuegos, independiente del genero de ellos.
+
+Tambien es importante notar que aproximadamente en el 2013, hay una baja importante en la mayoria de los videojuegos, este hecho calza con la salida de League of legends en 2011, que tuvo un exito explosivo en los años siguientes, (este no se encuentra representado dentro de la tabla dado que es un juego gratis).
+
+Si bien no presenta ventas tan altas, es destacable el peak de 1984 de los shooter, con "Duck Hunt" como el mas vendido, y posteriormente el peak de 1985 en juegos de plataformas, este exito es basicamente gracias a las ventas de "Super Mario Bros.", por lo que podriamos hablar de que estos juegos son un gran catapultante al exito de los juegos de hoy en día.
+
+
+
+
