@@ -15,21 +15,25 @@ library(countrycode)
 library(tidyverse)
 library(plyr)
 library(sqldf)
+library(ggthemes)
+library(ggrepel)
 
 ```
 
-\#Carga de datos y transformacion de los mismos
+Carga de datos y transformacion de los mismos
 
 ```{r}
 
-datos <- rio::import(file.choose())
+datos <- rio::import(here::here("Datos Iniciales/vgsales.csv"))
 promedio_anual_por_genero <- sqldf("select Genre, Year, sum(Global_Sales) as Ventas from datos group by Genre, Year")
 
 DT2 <- promedio_anual_por_genero[-which(promedio_anual_por_genero$Year == "N/A"),]
 
 ```
 
-\#Version 1 \#Para una siguiente version se estima hacer un grafico por genero, ya que al ser tantos datos, independiente de los colores que se elijan, no sera muy claro, luego se pueden superponer los mas similares para compararlos
+Version 1 
+
+(Para una siguiente version se estima hacer un grafico por genero, ya que al ser tantos datos, independiente de los colores que se elijan, no sera muy claro, luego se pueden superponer los mas similares para compararlos)
 
 ```{r}
 
@@ -42,5 +46,6 @@ ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
        y = "Ventas Globales en 100 miles",
        x = "Year") +
   geom_point()
+  ggrepel::geom_label_repel()
 
 ```
