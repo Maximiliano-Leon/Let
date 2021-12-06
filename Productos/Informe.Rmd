@@ -1,0 +1,225 @@
+---
+title: "Alza y caída: una mirada a la historia de las ventas de videojuegos"
+author: "Maximiliano León"
+date: "04-12-2021"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+
+```{r setup, include=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(gapminder)
+library(gghighlight)
+library(countrycode)
+library(tidyverse)
+library(plyr)
+library(sqldf)
+library(ggthemes)
+library(ggrepel)
+library(RColorBrewer)
+
+```
+
+
+
+## Introducción
+
+
+En 1950, tras la segunda guerra mundial, nacen los primeros videojuegos: los Simuladores de Ajedrez. Al pasar los años se desarrollarán muchos más, de variados géneros. Es indudable el éxito que tienen los videojuegos hoy en día, y así mismo, el gran flujo de dinero que esto implica.
+
+Así como han cambiado los videojuegos, también han cambiado los gustos de los consumidores, de la misma forma, han cambiado los géneros preferidos a lo largo de los años. Por esto, es interesante saber cómo ha evolucionado el mercado, que géneros han sido más exitosos a lo largo del tiempo, y cuales han tenido éxitos esporádicos.
+
+En el presente informe se analiza una base de datos correspondiente a videojuegos con ventas mayores a las 100 mil unidades entre los años 1980 y 2015.  Podremos ver cuáles han sido los momentos claves para el éxito que tienen los videojuegos hoy en día, cómo han cambiado las preferencias y cuáles son los géneros más populares a lo largo del tiempo.
+
+En una primera parte hay un análisis descriptivo, viendo desde el total de las ventas de los videojuegos. Luego, análisis de cada género por separado, y comparaciones cuando sea pertinente. Veremos cómo ha sido la evolución en ventas de cada género de los videojuegos a lo largo del tiempo, y sus puntos máximos. Para finalizar con la conclusión, donde estimaremos que género tendrá éxito en el futuro próximo, cual no lo tendrá, y cuál puede serlo sin importar la época.
+
+
+
+
+
+## Antecedentes
+
+Del sitio web kaggle.com, se extrajo la base de datos con la que se trabajó en este informe. Esta comprende datos entre 1980 y 2020, y se puede encontrar bajo la siguiente URL: https://www.kaggle.com/gregorut/videogamesales
+
+La base de datos cuenta con 16.600 muestras de videojuegos con ventas mayores a las 100 mil unidades. Para trabajar adecuadamente con ella se realizó una limpieza de datos, eliminando los datos que no tenía su año definido. Además, eliminamos los datos desde 2015 a 2020 ya que estos eran muy pocos, por lo que podrían ser poco determinantes. También, se transformaron los valores de año (Year), de texto a numéricos, de esta forma el programa R trabaja mejor con ellos.
+
+Finalizada la limpieza de datos, la base cuenta con 15.979 observaciones.
+
+Luego de la limpieza y transformación de datos, se hicieron bases de datos a partir de esta. La primera, sumando las ventas globales (Global_Sales), por año, para un primer análisis general. Y la segunda, donde están las ventas globales fueron sumadas por género (Genre), para un análisis comparativo por género. Finalmente, una tercera base de datos que separa nuestros datos por género y año, para un último análisis más específico.
+
+
+
+Por último, lo que debemos tener en claro para entender este informe en su totalidad, es la categoría Géneros (Genre).
+
+### Géneros
+
+Para esta categoría se decide no cambiar el nombre de cada género, ya que suele encontrarse mayor información, y son popularmente más conocidas por su anglicismo.
+
+La base de datos posee 12 géneros distintos, que serán descritos a continuación:
+
+-Action (Acción): juegos altamente relacionados con la acción, se presenta conflicto violento, ya sea con armas o sin ellas. Ejemplos: GoldenEye 007 (2010), Devil May Cry 2 y Metal Gear Solid.
+
+-Adventure (Aventura): están enfocados en el recorrido de un mundo complejo, donde se adquieren herramientas para obtener un tesoro final. Ejemplos: Assassin's Creed, L.A. Noire y Heavy Rain.
+
+-Fighting (Pelea): se maneja un luchado o un grupo de estos, y se lucha contra un similar, ya sea con goles, llaves, magia o armas. Ejemplos: Super Smash Bros. Brawl, Street Fighter IV y Mike Tyson's Punch-Out!!.
+
+
+-Misc (Misceláneo): en esta categoría están los juegos que no presentan una identidad clara para estar en alguna de las otras categorías. Ejemplos: Wii Play, Just Dance 3 y Minecraft.
+
+-Platform (Plataformas): se maneja un personaje en un espacio con obstáculos, donde hay que evitarlos usando todos los medios disponibles para ello. Ejemplos: Super Mario Bros., Crash Bandicoot y Ratchet & Clank: Size Matters.
+
+-Puzzle (Puzle): estos se basan en la resolución de puzles. Ejemplos: Tetris, Professor Layton and the Diabolical Box y WarioWare Touched!.
+
+-Racing (Carreras): carreras en vehículos, donde el primero en llegar a la meta es el ganador absoluto. Ejemplos: Gran Turismo, Mario Kart y The Simpsons: Hit & Run.
+
+-Role-Playing (Juego de Rol): también conocidos como RPG, en estos se controla a uno o más personajes, donde tomas un rol importante dentro de una historia. Ejemplos: Pokemon Red/Pokemon Blue, Final Fantasy VII y The Elder Scrolls V: Skyrim.
+
+-Shooter (Disparos): también conocidos como FPS (First Person Shooter), o disparadores de primera persona, ya que se suele tener una visión en primera persona. En estos se suele ver el arma que se usara para acabas con los enemigos. Se diferencia de los de acción porque en estos suele importar mucho más apuntar correctamente. Ejemplos: Duck Hunt, Call of Duty y Gears of War.
+
+-Simulation (Simuladores): En estos tomamos un papel importante en algo, ya sea como granjeros, camioneros. Suelen ser juegos sin un final definido, por lo que podremos seguir avanzando y simulando nuestra actividad de preferencia. Ejemplos: Animal Crossing, The Sims y Dance Dance Revolution.
+
+-Sports (Deportes): se basa en controla a uno o un grupo de deportistas y realizar su deporte dentro del juego. Ejemplos: Wii Sports, FIFA y Tony Hawk's Pro Skater 2.
+
+-Strategy (Estrategia): se basan en el uso correcto de la estrategia, ya sea en juegos de carta, guerras de grandes ejércitos, o cualquier actividad donde la estrategia es lo esencial. Ejemplos: Pokemon Stadium, Warcraft: Orcs & Humans y Yu-Gi-Oh! Duel Monsters.
+
+Disclaimer: Es importante destacar que muchos juegos pertenecen a más de un género, por ello, podemos encontrar juegos muy similares, o incluso secuelas, en distintos géneros.
+
+Los géneros de Acción y Aventura son muy similares, he incluso podrían ser tomados como un solo género de ser necesario. Para efectos de este estudio, se trabajan por separado para tener resultados más fieles a la base de datos.
+
+## Desarrollo
+
+
+```{r, cache=TRUE, include=FALSE}
+## Importamos datos
+## (Usando el mismo metodo anterior, el metodo visto en clases para llamar la variable arroja error)
+datos <- rio::import(here::here("Datos Iniciales/vgsales.csv"))
+
+datos <- datos[-which(datos$Year == "N/A"),]
+
+datos$Year <- as.numeric(datos$Year)
+
+
+datos <- datos[-which(datos$Year == 2020),]
+datos <- datos[-which(datos$Year == 2017),]
+datos <- datos[-which(datos$Year == 2016),]
+
+promedio_anual_por_genero <- sqldf("select Genre, Year, sum(Global_Sales) as Ventas from datos group by Genre, Year")
+
+DT2 <- promedio_anual_por_genero
+
+DT1 <- sqldf("select Year, sum(Ventas) as Ventas_anuales from DT2 group by Year")
+
+DT3 <- sqldf("select Genre, sum(Ventas) as Ventas_anuales from DT2 group by Genre")
+```
+
+
+
+Primero se realiza un gráfico general, que utiliza el total de ventas anuales, sin diferenciar por género, así sabremos donde podríamos encontrar los momentos más importantes para las ventas de videojuegos.
+
+```{r, include = TRUE, message = FALSE, warning = FALSE, echo = FALSE, results = TRUE}
+
+ggplot(DT1, aes(x = Year, y = Ventas_anuales)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Evolución en las ventas de videojuegos", 
+       subtitle = "(1980 - 2015)",
+       y = "Ventas Globales en 100 miles",
+       x = "Año") +
+  geom_point() +
+  scale_x_continuous(breaks = round(seq(min(DT1$Year), max(DT1$Year), by = 2),1)) +
+    geom_vline( xintercept = 2008, col = "red", show.legend = T )
+
+
+ggsave(device = png , filename = "evolucion_ventas_videojuegos.png", path = here::here("Figuras"))
+
+```
+
+Se puede apreciar en rojo el año 2008, que marca el peak de ventas de los videojuegos, luego de esto, hay una disminucion en las ventas muy contante.
+
+Además es importante notar las alzas de ventas en 1996, donde se duplican las ventas. Otra alza importante, y que sería interesante de analizar, es la ocurrida en el año 2001.
+
+De esta misma forma, la baja en ventas del 2012 sería importante de analizar, y estimar razones para ella.
+
+RELLENAR
+
+A continuación, se presenta un gráfico con las ventas totales de cada género de videojuegos sin diferenciar por año.
+
+```{r, include = TRUE, message = FALSE, warning = FALSE, echo = FALSE, results = TRUE}
+
+ggplot(DT3, aes(x = Genre, y = Ventas_anuales, color = Genre)) +
+  theme_minimal() +
+  geom_col()+
+  labs(title = "Ventas totales de videojuegos por género", 
+       subtitle = "(1980 - 2015)",
+       y = "Ventas en 100 miles",
+       x = "Géneros",
+       col = "Géneros")
+
+
+ggsave( device = "png", filename = "ventas totales por genero.png", path = here::here("Figuras"))
+
+
+```
+
+Queda una evidencia una gran preferencia por los juegos de Acción(Action), seguido por los Deportivos(Sports). Luego de ellos, hay un grupo de 5 géneros que presentan ventas similares (entre 500 millónes y 1 billón de unidades vendidas), liderado por los de Disparos(Shooters).
+
+Tambien hay otro grupo que es el de ventas mas bajas, donde tenemos los juegos de Estrategia(Strategy) con los números más bajos, seguido por los de Aventura(Adventure).
+
+
+
+
+
+Finalmente veremos las ventas de cada género graficadas por separado, y podremos apreciar el mejor año para cada uno. 
+
+```{r, include = TRUE, message = FALSE, warning = FALSE, echo = FALSE, results = TRUE}
+
+ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
+  geom_line(size = 1.1) +
+  theme_minimal() +
+  labs(title = "Evolución en las ventas de videojuegos por genero", 
+       subtitle = "(1980 - 2015)",
+       x = "Año",
+       y = "Ventas en 100 miles", 
+       col= "Géneros") +
+  scale_x_continuous(breaks = round(seq(min(DT1$Year), max(DT1$Year), by = 5),1)) +
+  facet_wrap(~ Genre, nrow = c(6,2), shrink = T) +
+  geom_hline(yintercept = c(0, 50, 100), col = "dark grey") +
+  geom_hline(yintercept = 125, col = "blue")
+
+
+ggsave( device = "png", filename = "evolucion_ventas_videojuegos_por_genero_v3.png", path = here::here("Figuras"))
+
+
+```
+
+Con este gráfico podemos estudiar los peaks de cada género. Podemos apreciar que el primer género en tener un peak son los de Disparos(Shooter), al revisar en nuestra base de datos, vemos que su éxito se relaciona con Duck Hunt el año 1984, que a su vez es el juego mas vendido de este género.
+
+El siguiente peak de ventas se encuentra en los juegos de Plataformas(Platform), en el año 1985 con el juego Super Mario Bros., que también es el juego con mayores ventas de este género.
+
+Estos son seguidos posteriormente por el éxito de ventas de los juegos de Puzles(Puzzle) en , encabezado por Tetris, juego que también es el mayor éxito que ha tenido este género.
+
+Podríamos estimar que tres hitos anteriormente descritos, serían una de las principales causas de la gran popularidad que poseen los videojuegos hoy en día.
+
+Luego de esto, podemos apreciar un crecimiento en las ventas de la mayoría de los géneros, claramente los de Acción y Deportes son los más exitosos, pero es importante destacar el crecimiento de los juegos de Acción, Rol(Rol-Playing) y los de Disparo. Estos poseen un crecimiento más estable a través del tiempo, dado esto, podemos estimar que son los que se ven más beneficiados por las mejoras gráficas. Por estas mismas razones, son los que tienen mayor probabilidad de ser vistos con éxito en un futuro próximo o lejano.
+
+Finalmente, juntando las observaciones obtenidas de los distintos gráficos, vemos que el éxito de los juegos de Acción es el más relevante, dado que luego de sus peaks, no suelen haber bajas tan importanes, y luego remonta en ventas, y logra nuevos peaks.
+
+## Conclusión
+
+Concluyendo, tenemos el género de Acción como el ganador de nuestro estudio. Por lo tanto, si quisiéramos decidir en qué género apoyar, si ya estamos seguros de que será un éxito, la mejor decisión sería elegir uno de Acción, ya que existe una gran posibilidad de que estos lleguen mucho más lejos.
+
+Es notable como principalmente tres juegos Duck Hunt(1984), Super Mario Bros.(1985) y Tetris(1989), fueron la piedra angular del éxito de los videojuegos en los años siguientes, he incluso, hoy en día.
+
+Finalmente, debemos tener en cuenta, que, para hacer este análisis en mayor profundidad, debemos tener en cuenta los juegos que están disponibles de manera gratuita, y también los que están disponible a partir de suscripciones, ya que esos no se encuentran incluidos en una base de datos de este estilo.
+
+
+
+## Bibliografía
+
+GregorySmith. (2018). kaggle. Obtenido de kaggle: https://www.kaggle.com/gregorut/videogamesales?select=vgsales.csv
+
+
+

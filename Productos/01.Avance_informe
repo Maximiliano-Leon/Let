@@ -1,0 +1,111 @@
+---
+title: "Avance informe 1"
+author: "Maximiliano León"
+date: "16-11-2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(gapminder)
+library(gghighlight)
+library(countrycode)
+library(tidyverse)
+library(plyr)
+library(sqldf)
+library(ggthemes)
+library(ggrepel)
+library(RColorBrewer)
+
+```
+
+
+```{r setup, include=FALSE}
+
+subtitle: Introducción
+
+```
+
+En 1950, tras la segunda guerra mundial, nacen los primeros videojuegos: simuladores de ajedrez. Al pasar los años se desarrollarán muchos más, de variados géneros. Es indudable el éxito que tienen los videojuegos hoy en día, y así mismo, el gran flujo de dinero que esto implica.
+
+Así como han cambiado los videojuegos, también han cambiado los gustos de los consumidores, de la misma forma, han cambiado los géneros preferidos a lo largo de los años. Por esto, es bueno saber cómo ha evolucionado el mercado, que géneros han sido más exitosos a lo largo del tiempo, y cuales han tenido éxitos esporádicos.
+
+En el presente informe se analiza una base de datos correspondiente a videojuegos con ventas mayores a las 100 mil unidades entre los años 1980 y 2015.  Podremos ver cuáles han sido los momentos claves para el éxito que tienen los videojuegos hoy en día, cómo han cambiado las preferencias y cuáles son los géneros más populares a lo largo del tiempo.
+
+En una primera parte hay un análisis con gráficos, viendo desde el total de las ventas de los videojuegos, para ver los momentos clave para el éxito actual. Luego, análisis de cada género por separado, y comparaciones cuando sea pertinente. Veremos cómo ha sido la evolución en ventas de cada género de los videojuegos a lo largo del tiempo, y sus puntos máximos. Para luego finalizar con la conclusión, donde estimaremos que género que tendrá éxito en el futuro próximo, cual no lo tendrá, y cuál puede serlo sin importar la época.
+
+```{r setup, include=FALSE}
+
+subtitle: Marco Teórico
+
+```
+
+
+
+
+
+
+```{r setup, include=FALSE}
+
+subtitle: Desarrollo
+
+```
+
+```{r, cache=TRUE}
+## Importamos datos
+## (Usando el mismo metodo anterior, el metodo visto en clases para llamar la variable arroja error)
+datos <- rio::import(here::here("Datos Iniciales/vgsales.csv"))
+promedio_anual_por_genero <- sqldf("select Genre, Year, sum(Global_Sales) as Ventas from datos group by Genre, Year")
+
+DT2 <- promedio_anual_por_genero[-which(promedio_anual_por_genero$Year == "N/A"),]
+
+
+#Nuevo
+#Hacemos numerica la variable año(Year), ya que no lo era
+DT2$Year <- as.numeric(DT2$Year)
+
+#Eliminamos datos poco favorables para estudio
+DT2 <- DT2[-which(DT2$Year == 2020),]
+DT2 <- DT2[-which(DT2$Year == 2017),]
+DT2 <- DT2[-which(DT2$Year == 2016),]
+```
+
+Tomando una base de datos de 16 mil muestras tomadas de videojuegos con ventas mayores a las 100 mil unidades,
+realizamos una limpieza de datos, eliminando los datos que no tenia su año definido, ademas, luego eliminamos los datos desde 2015 a 2020 ya que estos eran muy pocos, por lo que podrian ser poco determinantes.
+
+
+Finalmente, con la base de datos abarcando desde 1980 a 2015, haremos algunos graficos de exploracion para tener ideas generales sobre los datos, y luego otros mas concluyentes.
+
+```{r}
+
+ggplot(DT2, aes(x = Year, y = Ventas, color = Genre)) +
+  geom_line(size = 1.1) +
+  theme_minimal() +
+  labs(title = "Evolución en las ventas de videojuegos por genero", 
+       subtitle = "(1980 - 2015)",
+       y = "Ventas Globales en 100 miles",
+       x = "Year") +
+  geom_point(size = 1.5) +
+  scale_color_brewer(palette = "Set3")
+
+
+ggsave( device = "png", filename = "evolucion_ventas_videojuegos_por_genero_v2", path = here::here("Figuras"))
+
+```
+
+En terminos generales, vemos que entre los años 2005 y 2015 hay un peak en ventas de videojuegos, independiente del genero de ellos.
+
+Tambien es importante notar que aproximadamente en el 2013, hay una baja importante en la mayoria de los videojuegos, este hecho calza con la salida de League of legends en 2011, que tuvo un exito explosivo en los años siguientes, (este no se encuentra representado dentro de la tabla dado que es un juego gratis).
+
+Si bien no presenta ventas tan altas, es destacable el peak de 1984 de los shooter, con "Duck Hunt" como el mas vendido, y posteriormente el peak de 1985 en juegos de plataformas, este exito es basicamente gracias a las ventas de "Super Mario Bros.", por lo que podriamos hablar de que estos juegos son un gran catapultante al exito de los juegos de hoy en día.
+
+
+
+```{r setup, include=FALSE}
+
+subtitle: Conclusíon
+
+```
+
